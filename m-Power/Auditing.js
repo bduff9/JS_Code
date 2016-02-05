@@ -8,14 +8,14 @@
 var Auditing = (function($, w) {
 	'use strict';
 /***************  EDIT THIS SECTION ONLY **********************************/
-	var dict = 'CATT5',
-		auditApp = 'M00009s',
-		nameOfAppField = 'auditapp',
+	var dict = 'MRCDICT',
+		auditApp = 'M00010s',
+		nameOfAppField = 'AUDITAPP',
 		dataToPass = {
 			one_step: 1, // one step write
 			action_mode: 'add', // add new record
 			// App specific fields below
-			auditact: 'APP_RUN' // pass APP_RUN to auditact field
+			AUDITACT: 'APP_RUN' // pass APP_RUN to AUDITACT field
 		};
 /***************  END OF SECTION TO EDIT **********************************/
 
