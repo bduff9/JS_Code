@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2015 by bduff9 (http://jsbin.com/yowimo/2/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>React-Bootstrap Template</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]>
+  <script>
+    (function(){
+      var ef = function(){};
+      window.console = window.console || {log:ef,warn:ef,error:ef,dir:ef};
+    }());
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv-printshiv.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/3.4.0/es5-shim.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/3.4.0/es5-sham.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<style id="jsbin-css">
+.scoreBoard {
+  background:linear-gradient(red, black);
+  border-radius:8px;
+  padding:0 6px 28px 6px;
+}
+
+.innerScoreboard {
+  background:#CCC;
+  border-radius:4px;
+  padding:0 6px 18px 6px;
+}
+
+.scoreBoard h3 {
+  color:white;
+  margin:0;
+  padding:10px 0;
+}
+
+.weekDisp {
+  padding:10px 0;
+}
+
+.scores {
+  background:white;
+  height:225px;
+  overflow-y:scroll;
+  overflow-x:hidden;
+}
+</style>
+</head>
+<body>
+  <div id="appContainer" class="container"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://fb.me/react-0.13.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.24.4/react-bootstrap.min.js"></script>
+<script id="jsbin-javascript">
+var data = [{ "Week":"1", "Days":[{ "Date":"Thurs,_Aug_13", "Games":[{ "HTEAM":"CHI", "HSCORE":"27", "VTEAM":"MIA", "VSCORE":"10", "STATUS":"F" }] }] }],
+    mode = 'previous';
+
+const mountNode = document.getElementById('appContainer');
+
+const ScoreBoard = React.createClass({
+
+  //propTypes: {},
+  //mixins: [],
+
+  getInitialState: function() {
+    return {
+      data:this.props.data,
+      weeks:this._getWeeks(),
+      mode:this.props.mode
+    };
+  },
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  _getWeeks: function() {
+    return this.props.data.map(function(i, obj) {
+      return obj.Week;
+    });
+  },
+
+  render: function() {
+    return (
+      <div className="scoreBoard">
+        <h3 className="center-block text-center">NFL Scoreboard</h3>
+        <div className="innerScoreboard">
+          <div className="text-center weekDisp">
+            <i className="fa fa-large fa-caret-left"></i>
+            &nbsp; Week {this.state.data[0].Week} &nbsp;
+            <i className="fa fa-large fa-caret-right"></i>
+          </div>
+          <Scores />
+        </div>
+      </div>
+    );
+  }
+
+});
+
+const Scores = React.createClass({
+
+  //propTypes: {},
+  //mixins: [],
+
+  //getInitialState: function() {},
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  //_myFunc: function() {},
+
+  render: function() {
+    return (
+      <div className="scores">
+        <div className="text-center">
+          <u>Thu, Aug 13</u>
+        </div>
+        <table className="table table-condensed able-bordered">
+          <tr>
+            <td>MIA</td>
+            <td>10</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>CHI</td>
+            <td>27</td>
+            <td>F</td>
+          </tr>
+          <tr className="divider">
+            <td colSpan="3"></td>
+          </tr>
+        </table>
+      </div>
+    );
+  }
+
+});
+
+React.render(<ScoreBoard data={data} mode={mode} />, mountNode);
+</script>
+</body>
+</html>

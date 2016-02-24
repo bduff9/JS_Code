@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2015 by bduff9 (http://jsbin.com/kekoce/23/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="en">
+  <head>
+<script src="https://fb.me/react-0.13.1.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<script src="https://code.jquery.com/jquery.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <style id="jsbin-css">
+.action-header { width:47px; }
+</style>
+</head>
+  <body>
+    
+  <script id="jsbin-javascript">
+// Populate data from AJAX call here and supply to React.render in success
+var data = [{ 'CUSNO':100001, 'CNAME':'ABC' }, { 'CUSNO':100002, 'CNAME':'DEF' }, { 'CUSNO':100003, 'CNAME':'XYZ' }];
+
+var Maintainer = React.createClass({
+
+  propTypes: {
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
+  },
+  //mixins: [],
+
+  getInitialState: function() {
+    return {
+      data: this.props.data,
+      mode: '',
+      lastAction: null,
+      lastKey: null,
+      lastRow: {}
+    };
+  },
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  _addRow: function() {
+    this.setState({ mode:'add', lastKey:this.state.data.length })
+  },
+  _addedRow: function(row) {
+    var data = this.state.data;
+    data.push(row);
+    this.setState({ data:data, mode:'', lastAction:'add', lastRow:{} });
+    row.action_mode = 'add';
+    this._ajaxify(row);
+  },
+  _copyRow: function(rowKey) {
+    this.setState({ mode:'copy', lastKey:rowKey });
+  },
+  _updateRow: function(rowKey) {
+    this.setState({ mode:'update', lastKey:rowKey, lastRow:this.state.data[rowKey] });
+    console.log(this.state.data[rowKey]);
+  },
+  _updatedRow: function(row) {
+    var data = this.state.data,
+        oldRow = data[this.state.lastKey];
+console.log(oldRow);
+    data[this.state.lastKey] = row;
+    this.setState({ data:data, mode:'', lastAction:'update' });
+    row.action_mode = 'update';
+    this._ajaxify(row);
+  },
+  _deleteRow: function(rowKey) {
+    // TODO - add for delete confirm
+    console.warn('TODO');
+  },
+  _deletedRow: function(rowKey) {
+    var data = this.state.data,
+        row = data.splice(rowKey, 1)[0];
+    this.setState({ data:data, mode:'', lastAction:'delete', lastKey:rowKey, lastRow:row });
+    row.action_mode = 'delete';
+    this._ajaxify(row);
+  },
+  _cancel: function() {
+    this.setState({ mode:'', lastKey:null, lastRow:{} });
+  },
+  _revert: function() {
+    var data = this.state.data,
+        key = this.state.lastKey,
+        row = this.state.lastRow,
+        newState = { lastAction:null, lastKey:null, lastRow:null };
+    switch (this.state.lastAction) {
+      case 'add':
+        data.splice(key, 1);
+        row.action_mode = 'delete';
+        break;
+      case 'update':
+        data[key] = row;
+        row.action_mode = 'update';
+        break;
+      case 'delete':
+        data.splice(key, 0, row);
+        row.action_mode = 'add';
+        break;
+    }
+    newState.data = data;
+    this.setState(newState);
+    this._ajaxify(row);
+console.log(this.state);
+  },
+  _ajaxify: function(data) {
+console.log(data);
+    // TODO - send data here, revert onerror
+  },
+  
+  render: function() {
+    return (
+      <div className="well clearfix">
+        <NavBar
+          {...this.state}
+          _addRow={this._addRow}
+          _revert={this._revert}
+        />
+        <ListView
+          {...this.state}
+          _addedRow={this._addedRow}
+          _updateRow={this._updateRow}
+          _updatedRow={this._updatedRow}
+          _copyRow={this._copyRow}
+          _deleteRow={this._deleteRow}
+          _deletedRow={this._deletedRow}
+          _cancel={this._cancel}
+        />
+      </div>
+    );
+  }
+
+});
+
+var NavBar = React.createClass({
+
+  propTypes: {
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    _addRow: React.PropTypes.func.isRequired,
+    _revert: React.PropTypes.func.isRequired,
+    mode: React.PropTypes.string.isRequired,
+    mode: React.PropTypes.string.isRequired
+  },
+  //mixins: [],
+
+  //getInitialState: function() {},
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  //_myFunc: function() {},
+
+  render: function() {
+    return (
+      <div className="panel panel-body panel-default">
+        &nbsp;&nbsp;
+        {this.props.data.length === 1 ? '1 Item' : this.props.data.length + ' Items'}
+        &nbsp;&nbsp;&nbsp;
+        <button onClick={this.props._addRow} className="btn btn-primary" disabled={this.props.mode === 'add'}>
+          <i className="fa fa-plus" /> {this.props.mode === 'add' ? 'Adding...' : 'Add New'}
+        </button>
+        &nbsp;&nbsp;&nbsp;
+        <button onClick={this.props._revert} className="btn btn-primary" disabled={!this.props.lastAction}>
+          <i className="fa fa-undo" /> Undo
+        </button>
+      </div>
+    );
+  }
+
+});
+
+var ListView = React.createClass({
+
+  propTypes: {
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    mode: React.PropTypes.string.isRequired
+  },
+  //mixins: [],
+
+  getInitialState: function() {
+   return {
+     cols: this._getCols()
+   };
+  },
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  _getCols: function() {
+    var cols = [],
+        row1 = this.props.data[0];
+    for (col in row1) {
+      if (row1.hasOwnProperty(col)) {
+        cols.push(col);
+      }
+    }
+    return cols;
+  },
+  
+  render: function() {
+    var state = this.state,
+        props = this.props;
+    return (
+      <table className="table table-striped table-hovered table-bordered">
+      <HeaderRow {...this.state} />
+      <tbody>
+        {this.props.data.map(function(obj, i) {
+          return (
+            <BodyRow
+              {...props}
+              key={i}
+              index={i}
+              row={obj}
+              {...state}
+            />
+          );
+          })}
+          {(this.props.mode === 'add' || this.props.mode === 'copy') && (
+            <FormRow
+              {...this.state}
+              {...this.props}
+            />
+          )}
+        </tbody>
+      </table>
+    );
+  }
+
+});
+
+var HeaderRow = React.createClass({
+
+  propTypes: {
+    cols: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+  },
+  //mixins: [],
+
+  //getInitialState: function() {},
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  //_myFunc: function() {},
+
+  render: function() {
+    return (
+      <thead>
+        <tr>
+          <th colSpan="4" className="text-center">Actions</th>
+          {this.props.cols.map(function(col, i) {
+          return (
+            <th key={i} className="text-center">{col}</th>
+          );
+          })}
+        </tr>
+      </thead>
+    );
+  }
+
+});
+
+var BodyRow = React.createClass({
+
+  propTypes: {
+    _updateRow: React.PropTypes.func.isRequired,
+    _copyRow: React.PropTypes.func.isRequired,
+    _deletedRow: React.PropTypes.func.isRequired,
+    row: React.PropTypes.object.isRequired,
+    lastKey: React.PropTypes.number,
+    index: React.PropTypes.number.isRequired,
+    mode: React.PropTypes.string.isRequired
+  },
+  //mixins: [],
+
+  //getInitialState: function() {},
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  _updateRow: function(e) {
+    var rowKey = parseInt(e.target.getAttribute('data-row'), 10);
+    this.props._updateRow(rowKey);
+  },
+  _copyRow: function(e) {
+    var rowKey = parseInt(e.target.getAttribute('data-row'), 10);
+    this.props._copyRow(rowKey);
+  },
+  _deleteRow: function(e) {
+    var rowKey = parseInt(e.target.getAttribute('data-row'), 10);
+    this.props._deletedRow(rowKey);
+  },
+  
+  render: function() {
+    var row = this.props.row,
+    	rowHTML;
+    if (this.props.lastKey === this.props.index && this.props.mode === 'update') {
+      rowHTML = (
+        <FormRow
+          {...this.props}
+        />
+      );
+    } else {
+      rowHTML = (
+        <tr key={'row' + this.props.index}>
+          <td className="text-center action-header">
+            <a href={'view' + this.props.index}><i className="fa fa-search" /></a>
+          </td>
+          <td className="text-center action-header">
+            <a onClick={this._updateRow} title={'Update Row ' + (this.props.index + 1)}><i data-row={this.props.index} className="fa fa-pencil" /></a>
+          </td>
+          <td className="text-center action-header">
+            <a onClick={this._copyRow} title={'Copy Row ' + (this.props.index + 1)}><i data-row={this.props.index} className="fa fa-files-o" /></a>
+          </td>
+          <td className="text-center action-header">
+            <a onClick={this._deleteRow} title={'Delete Row ' + (this.props.index + 1)}><i data-row={this.props.index} className="fa fa-trash-o" /></a>
+          </td>
+          {this.props.cols.map(function(col, i) {
+            return (
+              <td key={i} className="text-left">{row[col]}</td>
+            );
+          })}
+        </tr>
+      );
+    }
+    return rowHTML;
+  }
+  
+});
+
+var FormRow = React.createClass({
+
+  propTypes: {
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    lastKey: React.PropTypes.number.isRequired,
+    cols: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+    mode: React.PropTypes.string.isRequired,
+    _addedRow: React.PropTypes.func.isRequired,
+    _updatedRow: React.PropTypes.func.isRequired,
+    _cancel: React.PropTypes.func.isRequired
+  },
+  //mixins: [],
+
+  getInitialState: function() {
+    return {
+      newRow:this.props.data[this.props.lastKey] || this._initRowData()
+    };
+  },
+  //getDefaultProps: function() {},
+
+  //componentWillMount : function() {},
+  //componentWillReceiveProps: function() {},
+  //componentWillUnmount : function() {},
+
+  // Custom functions
+  _handleChange: function(e) {
+    var rowObj = this.state.newRow,
+        col = e.target.id,
+        val = e.target.value;
+    console.log(this.props.data);
+    rowObj[col] = val;
+    console.log(this.props.data);
+    this.setState({ newRow:rowObj });
+  },
+  _initRowData: function() {
+    var rowData = {};
+    this.props.cols.map(function(col, i) {
+      rowData[col] = '';
+    });
+    return rowData;
+  },
+  _saveRow: function(e) {
+    var rowData = this.state.newRow;
+    if (this.props.mode === 'add' || this.props.mode === 'copy') {
+      this.props._addedRow(rowData);
+    } else if (this.props.mode === 'update') {
+      this.props._updatedRow(rowData);
+    } 
+  },
+
+  render: function() {
+    var rowData = this.state.newRow,
+        that = this;
+    return (
+      <tr>
+        <td className="text-center" colSpan="4">
+          <button className="btn btn-primary" type="button" onClick={this.props._cancel}>
+            <i className="fa fa-large fa-times-circle" /> Cancel
+          </button>
+          &nbsp;&nbsp;
+          <button className="btn btn-primary" type="button" onClick={this._saveRow}>
+            <i className="fa fa-large fa-save" /> Save
+          </button>
+        </td>
+        {this.props.cols.map(function(col, i) {
+          return (
+            <td key={i} className="text-left">
+              <input ref={'inputFor' + col} autoFocus={i === 0} type="text" className="form-control" id={col} placeholder={col} value={rowData[col]} onChange={that._handleChange} />
+            </td>
+          );
+        })}
+      </tr>
+    );
+  }
+  
+});
+
+React.render(
+  <Maintainer data={data} />,
+  document.body
+);
+</script>
+</body>
+</html>
