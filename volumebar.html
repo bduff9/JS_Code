@@ -1,0 +1,84 @@
+<html>
+<head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+//increase volume
+var louderintervalId;
+var loudertimeout;
+$("#louder").mousedown(function() {
+increasevol();
+loudertimeout = setTimeout(function() {
+  louderintervalId = setInterval(increasevol, 100);
+}, 250);
+}).mouseup(function() {
+  clearTimeout(loudertimeout);
+  clearInterval(louderintervalId);
+});
+  function increasevol(){
+    currwidth = $("div.volumebar").width();
+    if(currwidth==$("div.container").width()) {
+    return false;
+    } else {
+    if(parseInt($("div.currlevel").css("marginLeft").replace("px","")) < 360) {
+    $("div.currlevel").css("margin-left","+=20"); }
+    $("div.volumebar").css("width","+=20");
+    $("span#currvol").html(parseInt($("span#currvol").html())+5);
+	perc = (currwidth / 400);
+	blue = 0;
+	green = parseInt(510*perc);
+	red = parseInt((1-perc)*510);
+	if (green > 255) { green = 255; }
+	if (red > 255) { red = 255; }
+	$("div.volumebar").css('background-color', 'rgb(' + red + ',' + green + ',' + blue + ')');
+    }
+}
+//decrease volume
+var softerintervalId;
+var softertimeout;
+$("#softer").mousedown(function() {
+  decreasevol();
+  softertimeout = setTimeout(function() {
+    softerintervalId = setInterval(decreasevol, 100);
+  }, 250);
+}).mouseup(function() {
+  clearTimeout(softertimeout);
+  clearInterval(softerintervalId);
+});
+  function decreasevol(){
+    currwidth = $("div.volumebar").width();
+    if(currwidth==0) {
+    return false;
+    } else {
+    if(currwidth < 361) {
+    $("div.currlevel").css("margin-left","-=20"); }
+    $("div.volumebar").width(currwidth-=20);
+    $("span#currvol").html(parseInt($("span#currvol").html())-5);
+	perc = (currwidth / 400);
+	blue = 0;
+	green = parseInt(510*perc);
+	red = parseInt((1-perc)*510);
+	if (green > 255) { green = 255; }
+	if (red > 255) { red = 255; }
+	$("div.volumebar").css('background-color', 'rgb(' + red + ',' + green + ',' + blue + ')');
+}
+  };
+  });
+</script>
+<style>
+div.container { width:400px; background-color:lightgrey; border:1px solid black; }
+div.volumebar { width:20px; background-color:rgb(242,0,0); }
+div.volbuttons { text-align:center; float:left; width:400px; }
+div.currlevel { margin-left:21px; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="volumebar">
+<div class="currlevel"><span id="currvol">5</span>%</div></div></div>
+<div class="volbuttons">
+<input id="softer" type="button" value="-" style="width:25px;" />
+<input id="louder" type="button" value="+" style="width:25px;" />
+</div>
+</body>
+</html>
